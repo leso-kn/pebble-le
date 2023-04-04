@@ -4,7 +4,7 @@ libdir=${prefix}/@CMAKE_INSTALL_LIBDIR@
 includedir=${prefix}/@CMAKE_INSTALL_INCLUDEDIR@
 
 Name: PebbleLE
-Description: "Library to talk to Pebble through Bluetooth Low Energy (BLE)."
+Description: "A library to talk to Pebble Smartwatches via Bluetooth Low Energy (BLE)."
 Requires: glib-2.0 dbus-1
 Version: @pebble-le_VERSION@
 Libs: -L${libdir} -lpebble-le @CMAKE_THREAD_LIBS_INIT@
