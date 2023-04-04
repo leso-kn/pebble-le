@@ -72,6 +72,10 @@ set_property(TARGET dbus_gatt PROPERTY POSITION_INDEPENDENT_CODE ON)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/pebble-le.pc.in
     ${CMAKE_CURRENT_BINARY_DIR}/pebble-le.pc @ONLY)
 
+if (PEBBLE_LE_BUILD_EXAMPLE)
+    add_subdirectory(example)
+endif()
+
 install(
     TARGETS pebble-le
     EXPORT pebble-le-config
