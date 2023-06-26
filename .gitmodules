@@ -1,6 +1,3 @@
-[submodule "third_party/dbus_gatt"]
-	path = third_party/dbus_gatt
-	url = https://github.com/RomaSo/dbus_gatt
 [submodule "third_party/SimpleBLE"]
 	path = third_party/SimpleBLE
 	url = https://github.com/OpenBluetoothToolbox/SimpleBLE
