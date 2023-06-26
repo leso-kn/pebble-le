@@ -74,7 +74,8 @@ void pebble_le_connect_with_bt_addr(const char *bt_addr)
     m.lock();
 }
 
-void pebble_le_free(const char *bt_addr)
+// disable optimization to prevent dealloc segfault on -O2 / -O3
+void __attribute__((optimize("0"))) pebble_le_free(const char *bt_addr)
 {
     ppogatt_clients[bt_addr]->stop();
 }
