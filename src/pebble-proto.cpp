@@ -10,7 +10,6 @@
 //
 
 unsigned char transId = 0;
-unsigned char sequenceNo = 0;
 
 std::map<PebbleEndpoint, std::string> ep_names =
 {

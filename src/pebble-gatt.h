@@ -20,7 +20,8 @@
 
 // Server UUIDs (libpebble-le host)
 #define le_service_server "10000000-328e-0fbb-c642-1aa6699bdada"
-#define le_service_padding "badbadba-dbad-badb-adba-badbadbadbad"
 
 #define le_characteristic_server_write "10000001-328e-0fbb-c642-1aa6699bdada"
 #define le_characteristic_server_read "10000002-328e-0fbb-c642-1aa6699bdada"
+
+#define le_descriptor_configuration "00002902-0000-1000-8000-00805f9b34fb"

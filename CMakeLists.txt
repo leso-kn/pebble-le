@@ -11,7 +11,6 @@ project(pebble-le VERSION 0.1.0)
 # Build Options
 option(BUILD_UNIT_TESTS "Enable unit tests" OFF)
 option(PEBBLE_LE_BUILD_EXAMPLE "Build example program" ON)
-set(BUILD_DBUS_GATT_EXAMPLES OFF)
 
 # Sources
 set(pebble_le_SOURCES
@@ -23,7 +22,7 @@ set(pebble_le_SOURCES
 
 # Third-Party Dependencies
 add_subdirectory(third_party/SimpleBLE/simpleble EXCLUDE_FROM_ALL)
-add_subdirectory(third_party/dbus_gatt EXCLUDE_FROM_ALL)
+add_subdirectory(third_party/binc/binc)
 
 set(SimpleBLE_INCLUDE_DIRS
     ${CMAKE_SOURCE_DIR}/third_party/SimpleBLE/simpleble/include
@@ -31,8 +30,12 @@ set(SimpleBLE_INCLUDE_DIRS
     ${CMAKE_SOURCE_DIR}/third_party/SimpleBLE/simpledbus/include
     ${CMAKE_BINARY_DIR}/third_party/SimpleBLE/simpleble/export)
 
+set(Binc_INCLUDE_DIRS
+    ${CMAKE_SOURCE_DIR}/third_party/binc)
+
 find_package(PkgConfig REQUIRED)
 pkg_search_module(GLIB REQUIRED glib-2.0)
+pkg_search_module(GIO REQUIRED gio-2.0)
 pkg_search_module(DBus1 REQUIRED dbus-1)
 
 # libpebble-le
@@ -51,15 +54,15 @@ set_target_properties(pebble-le PROPERTIES
 set_target_properties(pebble-le_static PROPERTIES
     OUTPUT_NAME pebble-le)
 
-target_include_directories(pebble-le_o PRIVATE ${SimpleBLE_INCLUDE_DIRS} ${DBus1_INCLUDE_DIRS} ${GLIB_INCLUDE_DIRS})
+target_include_directories(pebble-le_o PRIVATE ${Binc_INCLUDE_DIRS} ${SimpleBLE_INCLUDE_DIRS} ${DBus1_INCLUDE_DIRS} ${GLIB_INCLUDE_DIRS})
 target_include_directories(pebble-le_o PUBLIC include ${CMAKE_BINARY_DIR}/exports)
 
 target_link_libraries(pebble-le_o PUBLIC
-    dbus_gatt
+    Binc
     simpleble
     ${DBus1_LIBRARIES}
     ${GLIB_LIBRARIES}
-    ${GLIB_GIO_LIBRARIES})
+    ${GIO_LIBRARIES})
 
 include(GenerateExportHeader)
 generate_export_header(pebble-le_o
@@ -67,7 +70,8 @@ generate_export_header(pebble-le_o
     BASE_NAME PEBBLE_LE)
 
 set_property(TARGET pebble-le_o PROPERTY POSITION_INDEPENDENT_CODE ON)
-set_property(TARGET dbus_gatt PROPERTY POSITION_INDEPENDENT_CODE ON)
+set_property(TARGET Binc PROPERTY POSITION_INDEPENDENT_CODE ON)
+target_include_directories(Binc PRIVATE ${GLIB_INCLUDE_DIRS})
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/pebble-le.pc.in
     ${CMAKE_CURRENT_BINARY_DIR}/pebble-le.pc @ONLY)
