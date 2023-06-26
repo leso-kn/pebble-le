@@ -4,3 +4,6 @@
 [submodule "third_party/SimpleBLE"]
 	path = third_party/SimpleBLE
 	url = https://github.com/OpenBluetoothToolbox/SimpleBLE
+[submodule "third_party/binc"]
+	path = third_party/binc
+	url = https://github.com/weliem/bluez_inc
