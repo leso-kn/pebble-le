@@ -41,7 +41,7 @@ void on_connectivity(const char *bt_addr, bool connected)
     }
 }
 
-bool on_app_message(DictionaryIterator *iter, const char *bt_addr)
+bool on_app_message(DictionaryIterator *iter, const char *app_uuid, const char *bt_addr)
 {
     std::cout << "<< Received an AppMessage saying \"" << iter->cursor->value << "\"" << std::endl;
 

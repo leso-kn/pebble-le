@@ -59,12 +59,13 @@ typedef struct {
 /**
  * @brief Called after an incoming message is received.
  * @param iterator The dictionary iterator to the received message.
+ * @param app_uuid UUID of the watch-app that sent the message.
  * @param bt_addr Bluetooth address of the Pebble from which the message was received.
  * 
  * @return true to return an ACK reply to the watch,
  * @return false to return a NACK reply to the watch.
  */
-typedef bool (*AppMessageInboxReceived)(DictionaryIterator *iterator, const char *bt_addr);
+typedef bool (*AppMessageInboxReceived)(DictionaryIterator *iterator, const char *app_uuid, const char *bt_addr);
 
 enum PebbleLELogLevel
 {
