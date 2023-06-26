@@ -22,6 +22,10 @@ Credits also go to [Gadgetbridge](https://codeberg.org/Freeyourgadget/Gadgetbrid
 
 ## Changelog
 
+### v0.2.1
+
+* Fixed crash upon watch disconnect in optimized build
+
 ### v0.2.0
 
 * New: Support for sending/receiving large messages (packet chunking)
