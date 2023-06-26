@@ -22,7 +22,7 @@
 namespace libpebble_le
 {
     PebblePPoGATTServer *ppogatt_server;
-    std::map <std::string, PebblePPoGATTClient> ppogatt_clients;
+    std::map <std::string, PebblePPoGATTClient*> ppogatt_clients;
 
     bool ppogatt_initialized = false;
     void ppogatt_init();    
@@ -63,10 +63,12 @@ void pebble_le_connect_with_bt_addr(const char *bt_addr)
     new std::thread([&]()
     {
         auto c = PebblePPoGATTClient(bt_addr);
-        ppogatt_clients[bt_addr] = c;
+        ppogatt_clients[bt_addr] = &c;
 
         m.unlock();
         c.start();
+
+        ppogatt_clients.erase(bt_addr);
     });
 
     m.lock();
@@ -74,7 +76,7 @@ void pebble_le_connect_with_bt_addr(const char *bt_addr)
 
 void pebble_le_free(const char *bt_addr)
 {
-    ppogatt_clients.erase(bt_addr);
+    ppogatt_clients[bt_addr]->stop();
 }
 
 void pebble_le_register_watch_connectivity(void (*connected_callback)(const char *bt_addr, bool connected))

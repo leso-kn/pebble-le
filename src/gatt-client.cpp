@@ -8,6 +8,7 @@
 #include "gatt-client.h"
 
 #include <iostream>
+#include <functional>
 #include <simplebluez/Bluez.h>
 
 #include "pebble-gatt.h"
@@ -21,7 +22,7 @@ void PebblePPoGATTClient::pair_pebble()
 {
     peripheral.unpair();
     ((SimpleBluez::Device*) peripheral.underlying())->pair();
-    peripheral.write_request(le_service_pebble_general, le_characteristic_pebble_pairing_trigger, {0x09}); // for gadgetbridge-experimental client-only mode: 0x11
+    peripheral.write_request(le_service_pebble_general, le_characteristic_pebble_pairing_trigger, {0x09});
 }
 
 bool PebblePPoGATTClient::is_pebble(SimpleBLE::Peripheral p)
@@ -32,7 +33,7 @@ bool PebblePPoGATTClient::is_pebble(SimpleBLE::Peripheral p)
 bool PebblePPoGATTClient::connect_pebble(SimpleBLE::Peripheral p)
 {
     peripheral = p;
-    peripheral.connect();
+    peripheral.connect(); // TODO: Add try catch for this call. Throws when watch fails to connect
 
     filter_bt_addr = peripheral.address();
 
@@ -75,6 +76,12 @@ void PebblePPoGATTClient::subscribe_ppogatt()
 }
 
 PebblePPoGATTClient::PebblePPoGATTClient(std::string bt_addr) { filter_bt_addr = bt_addr; }
+
+void PebblePPoGATTClient::stop()
+{
+    if (peripheral.is_connected()) peripheral.disconnect();
+    else if (_run) _run->unlock();
+}
 
 void PebblePPoGATTClient::start()
 {

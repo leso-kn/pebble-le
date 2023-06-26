@@ -17,6 +17,7 @@ public:
     PebblePPoGATTClient(std::string bt_addr);
 
     void start();
+    void stop();
     static bool is_pebble(SimpleBLE::Peripheral p);
 
 private:
