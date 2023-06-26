@@ -22,6 +22,7 @@ struct UUID
     UUID(const std::string &uuid);
 
     bool operator==(const UUID &other);
+    operator std::string() const;
 private:
     unsigned char _data[16];
 };
@@ -90,11 +91,11 @@ struct PebblePacket
     std::string reply(std::string data);
 };
 
-struct PhoneversionPacket
+struct __attribute__ ((packed)) PhoneversionPacket
 {
-    char a = 0x01;
-    int32_t b = -1;
-    int32_t c = 0;
+    char command = 0x01; // AppVersionResponse
+    uint32_t protocol_version = -1;
+    int32_t session_caps = 0;
 
     int32_t os;
 
@@ -113,7 +114,7 @@ struct PhoneversionPacket
 
 struct AppMessagePacket
 {
-    char command;
+    char command = sizeof(PhoneversionPacket);
     char last_id;
 
     UUID app_uuid;

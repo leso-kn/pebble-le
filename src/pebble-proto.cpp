@@ -78,6 +78,22 @@ UUID::UUID(const std::string &uuid)
     return;
 }
 
+UUID::operator std::string() const
+{
+    std::string res;
+    static const char characters[] = "0123456789abcdef";
+
+    for (unsigned char i=0;i<16;i++)
+    {
+        res += characters[_data[i] / 16];
+        res += characters[_data[i] % 16];
+
+        if (i == 4 || i == 6 || i == 8 || i == 10)
+        res += '-';
+    }
+    return res;
+}
+
 // PebblePacket
 PebblePacket::PebblePacket(const uint8_t *data, unsigned int data_len)
 {
@@ -97,8 +113,10 @@ PhoneversionPacket::PhoneversionPacket(PhoneversionRemoteOS os) { this->os = hto
 
 std::string PhoneversionPacket::to_network()
 {
-    b = htonl(b);
-    c = htonl(c);
+    protocol_version = htonl(protocol_version);
+    session_caps = htonl(session_caps);
+
+    os = htonl(os);
 
     std::string res = packet_to_network(PebbleEndpoint::PHONEVERSION, std::string((const char*)this, sizeof(PhoneversionPacket)));
 
@@ -108,8 +126,10 @@ std::string PhoneversionPacket::to_network()
 
 void PhoneversionPacket::from_network()
 {
-    b = ntohl(b);
-    c = ntohl(c);
+    protocol_version = ntohl(protocol_version);
+    session_caps = ntohl(session_caps);
+
+    os = ntohl(os);
 }
 
 // AppMessagePacket
@@ -125,16 +145,15 @@ AppMessagePacket::AppMessagePacket(const uint8_t *data, unsigned int data_len)
 AppMessagePacket::AppMessagePacket(const UUID &app_uuid, DictionaryIterator *iterator)
 {
     command = 1; // AppMessagePush
-    last_id = transId;
-    transId++;
+    last_id = transId++;
 
     this->app_uuid = app_uuid;
 
     // Data
-    data = (const uint8_t*)iterator->dictionary;
-    data_len = (char*)iterator->end - (char*)iterator->dictionary;
-    
-    ((uint8_t*)data)[0] = iterator->len;
+    auto dict = (std::string*)iterator->dictionary;
+
+    data = (const uint8_t*)dict->data();
+    data_len = dict->size();
 }
 
 std::string AppMessagePacket::ack(bool ok)
@@ -143,20 +162,19 @@ std::string AppMessagePacket::ack(bool ok)
     {
         char ack;
         char target_id;
-        UUID uuid;
     } p;
 
     p.ack = ok ? 0xff : 0x7f;
     p.target_id = last_id;
-    p.uuid = app_uuid;
 
     return std::string((const char*)&p, sizeof(p));
 }
 
 std::string AppMessagePacket::to_network()
 {
-    std::string p(data_len+2+sizeof(UUID), 0);
-    char *ptr = p.data();
+    std::string p;
+    p.resize(data_len+2+sizeof(UUID));
+    char *ptr = (char*)p.data();
 
     put(ptr, char, command);
     put(ptr, char, last_id);
@@ -171,16 +189,14 @@ std::string AppMessagePacket::to_network()
 
 std::string packet_to_network(PebbleEndpoint endpoint, const std::string &data)
 {
-    std::string p(data.size()+1+2*sizeof(short), 0);
-    char *ptr = p.data();
+    std::string p;
+    p.resize(data.size()+2*sizeof(short));
+    char *ptr = (char*)p.data();
 
-    put(ptr, char, (sequenceNo << 3) & 0xff);
     put(ptr, unsigned short, htons(data.size()));
     put(ptr, unsigned short, htons(endpoint));
 
     memcpy(ptr, data.data(), data.size());
 
-    sequenceNo++;
-    if (sequenceNo > 31) sequenceNo = 0;
     return p;
 }
