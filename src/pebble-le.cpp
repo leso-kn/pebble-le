@@ -95,9 +95,8 @@ void pebble_le_app_message_outbox_begin(DictionaryIterator **iterator)
     auto &iter = **iterator;
 
     iter.dictionary = (Dictionary*)new std::string(1, 0); // 1 = char: num of keys in appmessage
-    iter.cursor = (Tuple*)((char*)iter.dictionary+1);
-    iter.end = iter.cursor+1;
-    iter.len = 0;
+    iter.cursor = (Tuple*)(((std::string*)iter.dictionary)->data()+1);
+    iter.end = ((char*)iter.cursor)+1;
 }
 
 bool pebble_le_app_message_outbox_send(const char *bt_addr, const char *app_uuid, DictionaryIterator *iterator)
@@ -115,21 +114,23 @@ bool pebble_le_app_message_outbox_send(const char *bt_addr, const char *app_uuid
 
 bool dict_write_data(DictionaryIterator *iter, const uint32_t key, const uint8_t * const data, const uint16_t size)
 {
-    auto dict = ((std::string*)iter->dictionary);
-    char* ptr = (char*)iter->cursor;
+    auto dict = (std::string*)iter->dictionary;
 
+    size_t start = dict->size();
     dict->resize(dict->size() + 7 + size);
 
-    put(ptr, uint32_t, htonl(key));
+    char* ptr = dict->data() + start;
+
+    put(ptr, uint32_t, key);
     put(ptr, char, TupleType::TUPLE_BYTE_ARRAY);
-    put(ptr, uint16_t, htons(size));
+    put(ptr, uint16_t, size);
 
     memcpy(ptr, data, size);
     ptr += size;
 
     iter->cursor = (Tuple*)ptr;
     iter->end = iter->cursor;
-    iter->len += 1;
+    dict->data()[0] += 1; // num of dict elements
 
     return true;
 }

@@ -52,8 +52,6 @@ typedef struct {
     Dictionary *dictionary;
     const void *end;
     Tuple *cursor;
-
-    unsigned char len;
 } DictionaryIterator;
 
 /**
