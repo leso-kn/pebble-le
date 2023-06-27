@@ -1,6 +1,12 @@
+[![latest packaged version(s)](https://repology.org/badge/latest-versions/pebble-le.svg)](https://repology.org/project/pebble-le/versions) [![License](https://img.shields.io/github/license/WayfireWM/wayfire)](LICENSE)
+
 # `libpebble-le`
 
+![Banner](docs/banner.png)
+
 _A library to talk to Pebble Smartwatches via Bluetooth Low Energy (BLE)._
+
+[![Packaging status](https://repology.org/badge/vertical-allrepos/pebble-le.svg)](https://repology.org/project/pebble-le/versions)
 
 ## Design
 
@@ -51,3 +57,7 @@ _Many thanks to the [Rebble dev team](https://github.com/pebble-dev/mobile-app/b
   * Callbacks for connectivity events and incoming AppMessages
   * Optional communication logging (disabled by default)
 * [Basic example program](example/main.cpp) to demonstrate the API usage
+
+---
+
+Created by [Lesosoftware](https://github.com/leso-kn) in 2023
