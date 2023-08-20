@@ -12,7 +12,6 @@
 
 #include <binc/advertisement.h>
 #include <binc/agent.h>
-#include <binc/device.h>
 #include <binc/logger.h>
 #include <binc/utility.h>
 
@@ -25,6 +24,7 @@
 void (*PebblePPoGATTServer::watch_connectivity_callback)(const char *bt_addr, bool connected) = NULL;
 AppMessageInboxReceived PebblePPoGATTServer::app_message_received_callback = NULL;
 std::map<const Application*, PebblePPoGATTServer*> servers;
+std::map<const Device*, PebblePPoGATTServer*> device_servers;
 
 extern unsigned long transId;
 
@@ -35,6 +35,15 @@ void PebblePPoGATTServer_write_char(const Application *app, const char* service_
 
     binc_application_set_char_value(app, service_uuid, char_uuid, byteArray);
     binc_application_notify(app, service_uuid, char_uuid, byteArray);
+}
+
+void PebblePPoGATTServer_on_connection_state_change(Device *device, ConnectionState state, const GError *error)
+{
+    if (state == ConnectionState::DISCONNECTED)
+    {
+        device_servers[device]->watch_connected = false;
+        device_servers.erase(device);
+    }
 }
 
 const char* PebblePPoGATTServer_on_char_read(const Application *app, const char *address, const char* service_uuid, const char* char_uuid)
@@ -181,7 +190,12 @@ const char* PebblePPoGATTServer_on_char_write(const Application *app, const char
                         // Watch is now ready to receive messages
                         if (!srv.watch_connected)
                         {
+                            auto bt_device = binc_adapter_get_device_by_address(srv.bt_adapter, address);
+                            device_servers[bt_device] = &srv;
+                            binc_device_set_connection_state_change_cb(bt_device, &PebblePPoGATTServer_on_connection_state_change);
+
                             srv.watch_connected = true;
+
                             if (PebblePPoGATTServer::watch_connectivity_callback != NULL)
                             srv.watch_connectivity_callback("<watch identification not yet implemented>", true);
                         }
@@ -206,9 +220,9 @@ PebblePPoGATTServer::PebblePPoGATTServer()
     g_bus_own_name_on_connection(dbusConnection, "pebble.ble", G_BUS_NAME_OWNER_FLAGS_NONE, NULL, NULL, NULL, NULL);
 
     loop = g_main_loop_new(NULL, FALSE);
-    auto default_adapter = binc_adapter_get_default(dbusConnection);
+    bt_adapter = binc_adapter_get_default(dbusConnection);
 
-    if (!default_adapter)
+    if (!bt_adapter)
     {
         printf("fatal: failed to get default bluetooth adapter\n");
         return;
@@ -217,14 +231,14 @@ PebblePPoGATTServer::PebblePPoGATTServer()
     GPtrArray *adv_services = g_ptr_array_new();
     g_ptr_array_add(adv_services, (gpointer*)le_service_server);
 
-    auto adv = binc_advertisement_create();
-    binc_advertisement_set_local_name(adv, "");
-    binc_advertisement_set_services(adv, adv_services);
+    bt_advertisement = binc_advertisement_create();
+    binc_advertisement_set_local_name(bt_advertisement, "");
+    binc_advertisement_set_services(bt_advertisement, adv_services);
     g_ptr_array_free(adv_services, true);
 
-    binc_adapter_start_advertising(default_adapter, adv);
+    binc_adapter_start_advertising(bt_adapter, bt_advertisement);
 
-    app = binc_create_application(default_adapter);
+    app = binc_create_application(bt_adapter);
     servers[app] = this;
 
     binc_application_add_service(app, le_service_server);
@@ -235,7 +249,7 @@ PebblePPoGATTServer::PebblePPoGATTServer()
     binc_application_set_char_read_cb(app, &PebblePPoGATTServer_on_char_read);
     binc_application_set_char_write_cb(app, &PebblePPoGATTServer_on_char_write);
 
-    binc_adapter_register_application(default_adapter, app);
+    binc_adapter_register_application(bt_adapter, app);
 
     // TX queue
     new std::thread([&]()
@@ -283,6 +297,13 @@ PebblePPoGATTServer::PebblePPoGATTServer()
             tx_queue.erase(tx_queue.begin());
         }
     });
+}
+
+PebblePPoGATTServer::~PebblePPoGATTServer()
+{
+    binc_adapter_stop_advertising(bt_adapter, bt_advertisement);
+    binc_advertisement_free(bt_advertisement);
+    binc_adapter_free(bt_adapter);
 }
 
 void PebblePPoGATTServer::send(const std::string &data, bool useChunks, bool block)

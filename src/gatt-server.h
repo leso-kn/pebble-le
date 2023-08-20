@@ -6,6 +6,7 @@
 */
 
 #include <binc/application.h>
+#include <binc/device.h>
 
 #include "../include/pebble-le/pebble-types.h"
 
@@ -14,6 +15,8 @@
 #include <mutex>
 
 //
+
+class Advertisment;
 
 struct RxPart
 {
@@ -28,6 +31,8 @@ class PebblePPoGATTServer
 {
 public:
     PebblePPoGATTServer();
+    ~PebblePPoGATTServer();
+
     void start() { g_main_loop_run(loop); };
     void send(const std::string &data, bool useChunks = true, bool block = true);
 
@@ -40,6 +45,7 @@ public:
     unsigned char sequenceNo = 0;
     bool ackmap[32];
 
+    Adapter* bt_adapter;
     std::vector<std::pair<std::string*, std::mutex*>> tx_queue;
     std::vector<RxPart> rx_queue;
     std::mutex tx_mutex;
@@ -47,4 +53,6 @@ public:
 private:
     GMainLoop *loop;
     Application *app;
+
+    Advertisement* bt_advertisement;
 };
