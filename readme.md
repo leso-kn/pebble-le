@@ -28,6 +28,10 @@ Credits also go to [Gadgetbridge](https://codeberg.org/Freeyourgadget/Gadgetbrid
 
 ## Changelog
 
+### v0.2.2
+
+* Fixed GATT server communication after watch reconnect
+
 ### v0.2.1
 
 * Fixed crash upon watch disconnect in optimized build
