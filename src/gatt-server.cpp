@@ -197,7 +197,7 @@ const char* PebblePPoGATTServer_on_char_write(const Application *app, const char
                             srv.watch_connected = true;
 
                             if (PebblePPoGATTServer::watch_connectivity_callback != NULL)
-                            srv.watch_connectivity_callback("<watch identification not yet implemented>", true);
+                            srv.watch_connectivity_callback(address, true);
                         }
 
                         break;
