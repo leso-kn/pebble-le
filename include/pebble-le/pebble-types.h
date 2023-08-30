@@ -47,7 +47,7 @@ struct Dictionary;
 // From Pebble SDK pebble.h
 typedef struct Dictionary Dictionary;
 
-// From Pebble SDK pebble.h
+/// From Pebble SDK pebble.h  @private
 typedef struct {
     Dictionary *dictionary;
     const void *end;
@@ -74,4 +74,4 @@ enum PebbleLELogLevel
 #ifdef __cplusplus
 }
 #endif
-#endif // LIBPEBBLE_LE_TYPES_H
+#endif /// LIBPEBBLE_LE_TYPES_H  @docs

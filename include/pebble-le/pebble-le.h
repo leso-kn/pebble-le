@@ -109,4 +109,4 @@ PEBBLE_LE_EXPORT dict_write_data(DictionaryIterator *iter, const uint32_t key, c
 #ifdef __cplusplus
 }
 #endif
-#endif // LIBPEBBLE_LE_H
+#endif /// LIBPEBBLE_LE_H  @docs

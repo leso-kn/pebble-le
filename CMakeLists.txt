@@ -104,3 +104,17 @@ install(
     FILES src/dbus-policy.conf
     DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/dbus-1/system.d
     RENAME pebble-le.conf)
+
+find_package(Doxygen)
+if (DOXYGEN_FOUND)
+
+add_custom_target( doc_doxygen ALL
+    COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_OUT}
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+    VERBATIM)
+
+install(
+    DIRECTORY docs/man
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/share)
+
+endif (DOXYGEN_FOUND)
