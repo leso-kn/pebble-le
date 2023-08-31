@@ -6,7 +6,7 @@
 #
 
 cmake_minimum_required(VERSION 3.0)
-project(pebble-le VERSION 0.2.2)
+project(pebble-le VERSION 0.3.0)
 
 # Build Options
 option(BUILD_UNIT_TESTS "Enable unit tests" OFF)

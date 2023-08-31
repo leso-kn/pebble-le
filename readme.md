@@ -28,6 +28,14 @@ Credits also go to [Gadgetbridge](https://codeberg.org/Freeyourgadget/Gadgetbrid
 
 ## Changelog
 
+### v0.3.0
+
+* Documentation
+  * Added docs generation via Doxygen
+  * New C API and Example pages in Sphinx format
+  * Documentation is now available at [ReadTheDocs.org](https://pebble-le.readthedocs.org/)
+* Bluetooth address now indicated in watch connectivity callback
+
 ### v0.2.2
 
 * Fixed GATT server communication after watch reconnect
